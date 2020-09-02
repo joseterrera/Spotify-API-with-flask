@@ -40,7 +40,12 @@ Ability to add new playlists
 base.html  
 404.html
 
+#### Add a song and it will suggest you 3 related songs. Add a song to playlist.
+
 
 #### Technologies Used
+
+Flask
+
 
 
