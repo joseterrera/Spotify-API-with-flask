@@ -5,3 +5,7 @@ app = Flask(__name__)
 app.secret_key = 'some key for session'
 
 
+@app.route("/")
+def index():
+    return render_template('index.html')
+
