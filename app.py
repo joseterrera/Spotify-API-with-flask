@@ -22,11 +22,11 @@ app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
 # debug = DebugToolbarExtension(app)
 
 
-@app.route("/")
-def root():
-    """Homepage: redirect to /playlists."""
+# @app.route("/")
+# def root():
+#     """Homepage: redirect to /playlists."""
 
-    return redirect("/playlists")
+#     return redirect("/playlists")
 
 
 ##############################################################################
