@@ -1,11 +1,19 @@
-
-{% extends "base.html" %}
-
+{% extends 'base.html' %}
 {% block content %}
-<h1 class="title">
-  Flask Login Example
-</h1>
-<h2 class="subtitle">
-  Easy authentication and authorization in Flask.
-</h2>
+
+<h1 class="display-4">Secure App</h1>
+<p class="lead">Register or Login to Access Secrets...</p>
+
+<ul>
+  {% if 'user_id' not in session %}
+    <li><a href="/register">Register</a></li>
+    <li><a href="/login">Login</a></li>
+  {% endif %}
+
+  {% if 'user_id' in session %}
+    <li><a href="/logout">Logout</a></li>
+    <li><a href="/secret">Secret</a></li>
+  {% endif %}
+</ul>
+
 {% endblock %}

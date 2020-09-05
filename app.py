@@ -26,7 +26,7 @@ app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
 def root():
     """Homepage: redirect to /playlists."""
 
-    return redirect("/playlists")
+    return render_template("index.html")
 
 
 ##############################################################################
@@ -39,7 +39,7 @@ def show_all_playlists():
 
     playlists = Playlist.query.all()
 
-    return render_template("playlists.html", playlists=playlists)
+    return render_template("playlist/playlists.html", playlists=playlists)
 
 
 @app.route("/playlists/<int:playlist_id>")
@@ -54,7 +54,7 @@ def show_playlist(playlist_id):
         print('testing',b)
 
 
-    return render_template("playlist.html", playlist=playlist)
+    return render_template("playlist/playlist.html", playlist=playlist)
 
 
 @app.route("/playlists/add", methods=["GET", "POST"])
@@ -89,7 +89,7 @@ def show_all_songs():
     """Show list of songs."""
 
     songs = Song.query.all()
-    return render_template("songs.html", songs=songs)
+    return render_template("song/songs.html", songs=songs)
 
 
 @app.route("/songs/<int:song_id>")
@@ -101,7 +101,7 @@ def show_song(song_id):
     playlists = song.play_song
 
 
-    return render_template("song.html", song=song, playlists=playlists)
+    return render_template("song/song.html", song=song, playlists=playlists)
 
 
 @app.route("/songs/add", methods=["GET", "POST"])
@@ -123,7 +123,7 @@ def add_song():
         db.session.commit()
         return redirect("/songs")
 
-    return render_template("new_song.html", form=form)
+    return render_template("song/new_song.html", form=form)
 
 
 
@@ -155,4 +155,4 @@ def add_song_to_playlist(playlist_id):
 
         return redirect(f"/playlists/{playlist_id}")
 
-    return render_template("add_song_to_playlist.html", playlist=playlist, form=form)
+    return render_template("song/add_song_to_playlist.html", playlist=playlist, form=form)
