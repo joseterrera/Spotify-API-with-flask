@@ -2,7 +2,7 @@ from flask import Flask, redirect, render_template, request
 from flask_debugtoolbar import DebugToolbarExtension
 
 from models import db, connect_db, Playlist, Song, PlaylistSong, User
-from forms import NewSongForPlaylistForm, SongForm, PlaylistForm
+from forms import NewSongForPlaylistForm, SongForm, PlaylistForm, RegisterForm, LoginForm
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql:///new_music'
@@ -27,6 +27,63 @@ def root():
     """Homepage: redirect to /playlists."""
 
     return render_template("index.html")
+
+##############################################################################
+# auth routes
+
+@app.route("/register", methods=["GET", "POST"])
+def register():
+    """Register user: produce form & handle form submission."""
+
+    form = RegisterForm()
+
+    if form.validate_on_submit():
+        name = form.username.data
+        pwd = form.password.data
+
+        user = User.register(name, pwd)
+        db.session.add(user)
+        db.session.commit()
+
+        session["user_id"] = user.id
+
+        # on successful login, redirect to profile page
+        return redirect("user/profile.html")
+
+    else:
+        return render_template("user/register.html", form=form)
+
+
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    """Produce login form or handle login."""
+
+    form = LoginForm()
+
+    if form.validate_on_submit():
+        name = form.username.data
+        pwd = form.password.data
+
+        # authenticate will return a user or False
+        user = User.authenticate(name, pwd)
+
+        if user:
+            session["user_id"] = user.id  # keep logged in
+            return redirect("user/profile.html")
+
+        else:
+            form.username.errors = ["Bad name/password"]
+
+    return render_template("user/login.html", form=form)
+# end-login   
+
+@app.route("/logout")
+def logout():
+    """Logs user out and redirects to homepage."""
+
+    session.pop("user_id")
+
+    return redirect("/")
 
 
 ##############################################################################
@@ -75,7 +132,7 @@ def add_playlist():
         # flash(f"Added {name} at {description}")
         return redirect("/playlists")
 
-    return render_template("new_playlist.html", form=form)
+    return render_template("playlist/new_playlist.html", form=form)
 
     # ADD THE NECESSARY CODE HERE FOR THIS ROUTE TO WORK
 
