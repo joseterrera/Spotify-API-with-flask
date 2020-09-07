@@ -2,10 +2,26 @@
 
 {% block content %}
 
-<h1 class="display-4">Welcome to the Chamber of Secrets!</h1>
+<h1 class="display-5">profile page for user</h1>
 
-<img src="https://media.giphy.com/media/AFZgmywhfOhiw/giphy.gif">
+<h3>See all the playlists!</h3>
 
-<p class="lead">Now you can learn our secrets!</p>
+<ul>
+  {% if 'user_id' in session %}
+{% for playlist in playlists %}
+  <li>
+     <a href="/playlists/{{ playlist.id }}">{{ playlist.name }}</a>
+  </li>
+{% endfor %}
+{% endif %}
+</ul>
+
+<!-- <p><a class="btn btn-primary" href="/playlists/add">Add a playlist</a></p> -->
+
+<h3>Add a new playlist</h3>
+<form method="POST">
+  {% include "_form.html" %}
+  <button class="btn btn-primary" type="submit">Add</button>
+</form>
 
 {% endblock %}

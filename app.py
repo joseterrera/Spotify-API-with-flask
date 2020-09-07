@@ -1,8 +1,10 @@
-from flask import Flask, redirect, render_template, request
+from flask import Flask, redirect, render_template, request, session, flash
 from flask_debugtoolbar import DebugToolbarExtension
 
 from models import db, connect_db, Playlist, Song, PlaylistSong, User
 from forms import NewSongForPlaylistForm, SongForm, PlaylistForm, RegisterForm, LoginForm
+
+
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql:///new_music'
@@ -45,10 +47,17 @@ def register():
         db.session.add(user)
         db.session.commit()
 
-        session["user_id"] = user.id
+        session["user_id"] = user.id   
+        session['username'] = user.username
+        # print('here')
+        # print('here')
+        # print('here')
+        # print(session['user_id'])
+        # print(session['username'])
+
 
         # on successful login, redirect to profile page
-        return redirect("user/profile.html")
+        return redirect("/profile")
 
     else:
         return render_template("user/register.html", form=form)
@@ -69,13 +78,44 @@ def login():
 
         if user:
             session["user_id"] = user.id  # keep logged in
-            return redirect("user/profile.html")
+            return redirect("/profile")
 
         else:
             form.username.errors = ["Bad name/password"]
 
     return render_template("user/login.html", form=form)
 # end-login   
+
+
+
+@app.route("/profile", methods=["GET", "POST"])
+def profile():
+    """Example hidden page for logged-in users only."""
+    
+    # if form.validate_on_submit():
+
+    if "user_id" not in session:
+        flash("You must be logged in to view!")
+        return redirect("/")
+
+    form = PlaylistForm()
+    playlists = Playlist.query.filter_by(user_id=session['user_id']).all()
+    # print('%%%%%%%%%%%%%%%%%%$')
+    # username = User.query.get(username)
+    # print(username)
+    
+    if form.validate_on_submit():
+        
+        
+        name = form.name.data
+        new_playlist = Playlist(name=name, user_id=session['user_id'])
+        db.session.add(new_playlist)
+        db.session.commit()
+        playlists.append(new_playlist)
+
+    return render_template("user/profile.html", playlists=playlists, form=form)
+
+
 
 @app.route("/logout")
 def logout():
@@ -90,13 +130,13 @@ def logout():
 # Playlist routes
 
 
-@app.route("/playlists")
-def show_all_playlists():
-    """Return a list of playlists."""
+# @app.route("/playlists")
+# def show_all_playlists():
+#     """Return a list of playlists."""
 
-    playlists = Playlist.query.all()
+#     playlists = Playlist.query.all()
 
-    return render_template("playlist/playlists.html", playlists=playlists)
+#     return render_template("playlist/playlists.html", playlists=playlists)
 
 
 @app.route("/playlists/<int:playlist_id>")
@@ -130,7 +170,7 @@ def add_playlist():
         db.session.add(new_playlist)
         db.session.commit()
         # flash(f"Added {name} at {description}")
-        return redirect("/playlists")
+        return redirect("/profile")
 
     return render_template("playlist/new_playlist.html", form=form)
 

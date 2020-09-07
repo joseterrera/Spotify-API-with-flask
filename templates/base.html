@@ -12,18 +12,19 @@
 <body>
 
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
-  <a class="navbar-brand" href="/">Playlists</a>
-  <ul class="navbar-nav">
-    <li class="nav-item"><a class="nav-link" href="/playlists">Playlists</a></li>
-    <li class="nav-item"><a class="nav-link" href="/songs">Songs</a></li>
+  <a class="navbar-brand" href="/">FIND NEW MUSIC</a>
+  <ul class="navbar-nav navbar-nav w-100">
     {% if 'user_id' not in session %}
-    <li class="nav-item"><a class="nav-link" href="/register">Register</a></li>
+    <li class="nav-item ml-auto"><a class="nav-link" href="/register">Register</a></li>
     <li class="nav-item"><a class="nav-link" href="/login">Login</a></li>
   {% endif %}
 
   {% if 'user_id' in session %}
-    <li class="nav-item"><a class="nav-link" href="/logout">Logout</a></li>
-    <li class="nav-item"><a class="nav-link" href="/secret">Secret</a></li>
+    <!-- <li class="nav-item"><a class="nav-link" href="/playlists">Playlists</a></li> -->
+    <li class="nav-item"><a class="nav-link" href="/songs">Songs</a></li>
+   
+    <li class="nav-item"><a class="nav-link" href="/profile">Profile</a></li>
+    <li class="nav-item ml-auto"><a class="nav-link " href="/logout">Logout</a></li>
   {% endif %}
   </ul>
 </nav>

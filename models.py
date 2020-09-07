@@ -6,6 +6,9 @@ from flask_bcrypt import Bcrypt
 db = SQLAlchemy()
 bcrypt = Bcrypt()
 
+
+
+    
 class User(db.Model):
     """Site user."""
     __tablename__ = "users"
@@ -48,23 +51,17 @@ class User(db.Model):
             return False
     # end_authenticate    
 
-
-
 class Playlist(db.Model):
     """Playlist."""
     __tablename__= "playlists"
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(100), nullable=False)
-    description = db.Column(db.Text, nullable=False)
-    
-    play_s = db.relationship('PlaylistSong',
-                                  backref='Playlist')
-
-    # direct navigation: emp -> project & back
-    song = db.relationship('Song',
-                               secondary='playlist_song',
-                               backref='playlists')
+    play_s = db.relationship('PlaylistSong', backref='Playlist')
+    song = db.relationship('Song', secondary='playlist_song', backref='playlists')
    
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"))
+
+    user =   db.relationship("User",  backref="playlists")
 
 class Song(db.Model):
     """Song."""

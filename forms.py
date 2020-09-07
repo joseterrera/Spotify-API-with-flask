@@ -25,7 +25,7 @@ class PlaylistForm(FlaskForm):
     """Form for adding playlists."""
     # Add the necessary code to use this form
     name = StringField("Playlist Name", validators=[InputRequired()])
-    description = StringField('Playlist Description', validators=[InputRequired()])
+    # description = StringField('Playlist Description', validators=[InputRequired()])
 
 
 
