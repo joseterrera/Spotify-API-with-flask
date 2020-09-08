@@ -36,77 +36,64 @@ def root():
 @app.route("/register", methods=["GET", "POST"])
 def register():
     """Register user: produce form & handle form submission."""
-
-    # Check to see if the user already exists, if they do
-    # then say user exists otherwise register them
-
-    # create user obj
+    if "username" in session and 'user_id' in session:
+        return redirect(f"/users/{session['username']}")
     form = RegisterForm()
 
-    # first validate form
-    if not form.validate_on_submit():
-        # send them away
-        return render_template("user/register.html", form=form)
-    
-    # after that, we know form is valid
-    name = form.username.data
-    pwd = form.password.data
+    if form.validate_on_submit():
+        username = form.username.data
+        password = form.password.data
 
-    existing_user_count = User.query.filter_by(username=name).count()
-    if existing_user_count > 0:
-        flash("User already exists")
-        return redirect('/login')
-    # select user in database, if their record is found, they already exist.
-    # exit if the user already exist with informative message
+        user = User.register(username, password)
 
-    # otherwise, the user creation attempt should proceed
-    user = User.register(name, pwd)
+        db.session.commit()
+        session['username'] = user.username
+        print('heeee')
+        print(user.id)
+        session['user_id'] = user.id
 
-    db.session.add(user)
-    db.session.commit()
+        return redirect(f"/users/{user.username}")
 
-    session["user_id"] = user.id   
-    # session['username'] = user.username
-   
+    else:
+        return render_template("users/register.html", form=form)
 
-    # on successful login, redirect to profile page
-    return redirect(f"/profile/{session['username']}")
+
 
 
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
-    """Produce login form or handle login."""     
+    """Produce login form or handle login."""
 
     if "username" in session:
-    # if user:
-        # session["user_id"] = user.id  # keep logged in
-        # session['username'] = user.username
-        return redirect(f"/profile/{session['username']}")
+        return redirect(f"/users/{session['username']}")
 
     form = LoginForm()
 
     if form.validate_on_submit():
-        name = form.username.data
-        pwd = form.password.data
-        
+        username = form.username.data
+        password = form.password.data
 
-        # authenticate will return a user or False
-        user = User.authenticate(name, pwd)
-        # session['username'] = user.username
-
+        user = User.authenticate(username, password)  # <User> or False
         if user:
-            session['username'] = user.username
+            # session['username'] = user.username
             return redirect(f"/users/{user.username}")
         else:
             form.username.errors = ["Invalid username/password."]
+            return render_template("users/login.html", form=form)
 
-    return render_template("user/login.html", form=form)
-# end-login   
+    return render_template("users/login.html", form=form)
+
+@app.route("/logout")
+def logout():
+    """Logout route."""
+    if "username" in session:
+        session.pop("username")
+    return redirect("/login")
 
 
 
-@app.route("/profile/<username>", methods=["GET", "POST"])
+@app.route("/users/<username>", methods=["GET", "POST"])
 def profile(username):
     """Example hidden page for logged-in users only."""
     # return redirect("/")
@@ -118,7 +105,7 @@ def profile(username):
         return redirect("/")
     # user = User.query.get(username)
     form = PlaylistForm()
-    # playlists = Playlist.query.filter_by(user_id=session['user_id']).all()
+    playlists = Playlist.query.filter_by(user_id=session['user_id']).all()
     # print('%%%%%%%%%%%%%%%%%%$')
     # username = User.query.get(username)
     # print(username)
@@ -132,18 +119,18 @@ def profile(username):
         db.session.commit()
         playlists.append(new_playlist)
 
-    return render_template("user/profile.html", form=form)
+    return render_template("users/profile.html", playlists=playlists, form=form)
 
 
 
-@app.route("/logout")
-def logout():
-    """Logs user out and redirects to homepage."""
+# @app.route("/logout")
+# def logout():
+#     """Logs user out and redirects to homepage."""
 
-    session.pop("user_id")
-    session.pop("username")
+#     session.pop("user_id")
+#     # session.pop("username")
 
-    return redirect("/")
+#     return redirect("/")
 
 
 ##############################################################################
