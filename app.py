@@ -27,6 +27,12 @@ app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
 @app.route("/")
 def root():
     """Homepage: redirect to /playlists."""
+    print("****************session************")
+    print(session["username"])
+    print(session["user_id"])
+
+    print("****************session************")
+
 
     return render_template("index.html")
 
@@ -36,23 +42,38 @@ def root():
 @app.route("/register", methods=["GET", "POST"])
 def register():
     """Register user: produce form & handle form submission."""
-    if "username" in session and 'user_id' in session:
-        return redirect(f"/users/{session['username']}")
+    # print('$$$$$$$$$$$$$$$$$$$$$$')
+    # print('$$$$$$$$$$$$$$$$$$$$$$')
+    # print('$$$$$$$$$$$$$$$$$$$$$$')
+    # print('$$$$$$$$$$$$$$$$$$$$$$')
+
+    # print('session', session )
+    
+
+    if 'user_id' in session:
+        return redirect(f"/users/{session['user_id']}")
+
     form = RegisterForm()
+    username = form.username.data
+    password = form.password.data
+
+    existing_user_count = User.query.filter_by(username=name).count()
+    if existing_user_count > 0:
+        flash("User already exists")
+        return redirect('/login')
 
     if form.validate_on_submit():
-        username = form.username.data
-        password = form.password.data
-
         user = User.register(username, password)
-
+        db.session.add(user)
         db.session.commit()
-        session['username'] = user.username
-        print('heeee')
+        session['user_id'] = user.id
+        # session['username'] = user.username
+        # print('heeee')
         print(user.id)
         session['user_id'] = user.id
+        print('id', session['user_id'])
 
-        return redirect(f"/users/{user.username}")
+        return redirect(f"/users/{user.id}")
 
     else:
         return render_template("users/register.html", form=form)
@@ -65,8 +86,8 @@ def register():
 def login():
     """Produce login form or handle login."""
 
-    if "username" in session:
-        return redirect(f"/users/{session['username']}")
+    if "user_id" in session:
+        return redirect(f"/users/{session['user_id']}")
 
     form = LoginForm()
 
@@ -77,7 +98,7 @@ def login():
         user = User.authenticate(username, password)  # <User> or False
         if user:
             # session['username'] = user.username
-            return redirect(f"/users/{user.username}")
+            return redirect(f"/users/{user.id}")
         else:
             form.username.errors = ["Invalid username/password."]
             return render_template("users/login.html", form=form)
@@ -87,20 +108,20 @@ def login():
 @app.route("/logout")
 def logout():
     """Logout route."""
-    if "username" in session:
+    if "user_id" in session:
         session.pop("username")
     return redirect("/login")
 
 
 
-@app.route("/users/<username>", methods=["GET", "POST"])
-def profile(username):
+@app.route("/users/<int:user_id>", methods=["GET", "POST"])
+def profile(user_id):
     """Example hidden page for logged-in users only."""
     # return redirect("/")
 
     # if form.validate_on_submit():
     # if "username" not in session or username != session['username']:
-    if "username" not in session:
+    if session.get["user_id"] not in session:
         flash("You must be logged in to view!")
         return redirect("/")
     # user = User.query.get(username)
