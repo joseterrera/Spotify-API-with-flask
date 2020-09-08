@@ -54,7 +54,8 @@ def register():
 
     existing_user_count = User.query.filter_by(username=name).count()
     if existing_user_count > 0:
-        return render_template("user/register.html", form=form)
+        flash("User already exists")
+        return redirect('/login')
     # select user in database, if their record is found, they already exist.
     # exit if the user already exist with informative message
 
@@ -65,7 +66,7 @@ def register():
     db.session.commit()
 
     session["user_id"] = user.id   
-    session['username'] = user.username
+    # session['username'] = user.username
    
 
     # on successful login, redirect to profile page
@@ -88,9 +89,12 @@ def login():
     if form.validate_on_submit():
         name = form.username.data
         pwd = form.password.data
+        
 
         # authenticate will return a user or False
         user = User.authenticate(name, pwd)
+        # session['username'] = user.username
+
         if user:
             session['username'] = user.username
             return redirect(f"/users/{user.username}")
@@ -105,7 +109,7 @@ def login():
 @app.route("/profile/<username>", methods=["GET", "POST"])
 def profile(username):
     """Example hidden page for logged-in users only."""
-    return redirect("/")
+    # return redirect("/")
 
     # if form.validate_on_submit():
     # if "username" not in session or username != session['username']:
@@ -114,7 +118,7 @@ def profile(username):
         return redirect("/")
     # user = User.query.get(username)
     form = PlaylistForm()
-    playlists = Playlist.query.filter_by(user_id=session['user_id']).all()
+    # playlists = Playlist.query.filter_by(user_id=session['user_id']).all()
     # print('%%%%%%%%%%%%%%%%%%$')
     # username = User.query.get(username)
     # print(username)
@@ -128,7 +132,7 @@ def profile(username):
         db.session.commit()
         playlists.append(new_playlist)
 
-    return render_template("user/profile.html", playlists=playlists, form=form)
+    return render_template("user/profile.html", form=form)
 
 
 
