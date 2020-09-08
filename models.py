@@ -7,7 +7,6 @@ db = SQLAlchemy()
 bcrypt = Bcrypt()
 
 
-
     
 class User(db.Model):
     """Site user."""
